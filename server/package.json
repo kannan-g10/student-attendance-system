@@ -1,0 +1,11 @@
+{
+  "name": "student-attendance-system",
+  "version": "1.0.0",
+  "description": "\"Assignment\"",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Kannan G",
+  "license": "ISC"
+}
