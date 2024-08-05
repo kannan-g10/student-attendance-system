@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export default function Container({ name, status, onStatusChange }) {
   const [defaultStatus, setDefaultStatus] = useState(status);
@@ -8,6 +8,14 @@ export default function Container({ name, status, onStatusChange }) {
     setDefaultStatus(newStatus);
     onStatusChange(name, newStatus);
   };
+
+  useEffect(() => {
+    // Ensure currentStatus is reset to an empty string if status is empty
+    if (status === '') {
+      setDefaultStatus('');
+    }
+  }, [status]);
+
   return (
     <div className="container">
       <p>{name}</p>

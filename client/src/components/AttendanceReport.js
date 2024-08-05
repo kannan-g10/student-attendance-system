@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AttendanceReport({ name, status }) {
+export default function AttendanceReport({ name, status, report, total }) {
   return (
     <div className="container">
       <p>{name}</p>

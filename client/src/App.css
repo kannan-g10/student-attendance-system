@@ -94,6 +94,9 @@ label {
   border-radius: 5px;
 }
 
+label {
+  cursor: pointer;
+}
 
 .submit:hover{
   opacity: 0.8;
@@ -105,4 +108,17 @@ label {
   display: flex;
   flex-direction: column;
   gap: 15px;
+}
+
+
+.reports, .report-title {
+  margin: 10px auto;
+  width: 80%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.report-title{
+  padding: 10px;
+  background-color: #a1c4fd;
 }

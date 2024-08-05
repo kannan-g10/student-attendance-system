@@ -5,9 +5,10 @@ import { API_URL } from './config/constants';
 
 import Container from './components/Container';
 import AttendanceReport from './components/AttendanceReport';
+import TotalReport from './components/TotalReport';
 
 const studentsData = [
-  { name: 'Nishi', status: '' },
+  { name: 'Sonali', status: '' },
   { name: 'Raj', status: '' },
   { name: 'Vikram', status: '' },
   { name: 'Vijay', status: '' },
@@ -18,8 +19,12 @@ function App() {
   const toast = useToast();
 
   const [students, setStudents] = useState(studentsData);
+  const [studentsReport, setStudentsReport] = useState(studentsData);
   const [attendance, setAttendance] = useState([]);
   const [date, setDate] = useState('');
+  const [reportStatus, setReportStatus] = useState(false);
+  const [report, setReport] = useState([]);
+  const [total, setTotal] = useState(0);
 
   const handleStatusChange = (name, status) => {
     const updatedStudents = students.map(student =>
@@ -30,27 +35,23 @@ function App() {
 
   const getStudentsAttendance = async () => {
     try {
-      if (!date)
+      setReportStatus(false);
+      if (!date) {
+        setDate('');
+        setAttendance([]);
         return toast({
           title: 'Select a date.',
           status: 'error',
           duration: 9000,
           isClosable: true,
         });
+      }
       const res = await fetch(API_URL + '/' + date);
       const attendanceDetails = await res.json();
 
       setAttendance(attendanceDetails.data.attendance);
       setDate('');
-      console.log(attendance);
     } catch (err) {
-      toast({
-        title: 'No record found.',
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-      });
-
       setAttendance([]);
     }
   };
@@ -72,7 +73,12 @@ function App() {
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       });
 
-      document.querySelectorAll('input[type=radio]').checked = false;
+      const resetStudents = students.map(student => ({
+        ...student,
+        status: '',
+      }));
+
+      setStudents(resetStudents);
 
       setDate('');
 
@@ -84,9 +90,29 @@ function App() {
       });
       const result = await postStudents.json();
       setAttendance(result.data);
-      console.log(result.data);
     } catch (err) {
       console.error(err.message);
+    }
+  };
+
+  const handleReports = async () => {
+    try {
+      const reports = await fetch(API_URL);
+      const res = await reports.json();
+
+      setTotal(res.totalDays);
+      setReport(res.data);
+      setReportStatus(true);
+      if (!total) {
+        return toast({
+          title: 'No Records.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (err) {
+      console.error('Something went wrong');
     }
   };
 
@@ -107,32 +133,54 @@ function App() {
             Search
           </button>
         </div>
-        <button className="report">Fetch Attendance Report</button>
+        <button className="report" onClick={handleReports}>
+          Fetch Attendance Report
+        </button>
       </header>
       <main>
-        {!attendance.length ? (
-          <div className="box">
-            {students?.map((student, index) => (
-              <Container
-                name={student.name}
-                status={student.status}
-                onStatusChange={handleStatusChange}
+        {reportStatus && total ? (
+          <div>
+            <div className="report-title">
+              <p>Name</p>
+              <p>Presents</p>
+              <p>Percentage</p>
+            </div>
+            {studentsReport.map((student, index) => (
+              <TotalReport
+                student={student}
+                reports={report}
+                total={total}
                 key={index}
               />
             ))}
-            <button className="submit" onClick={handleSubmit}>
-              Mark Attendance
-            </button>
           </div>
         ) : (
-          <div className="box">
-            {attendance.map(report => (
-              <AttendanceReport
-                key={report.id}
-                name={report.name}
-                status={report.status}
-              />
-            ))}
+          <div>
+            {attendance.length ? (
+              <div className="box">
+                {attendance.map(report => (
+                  <AttendanceReport
+                    key={report.id}
+                    name={report.name}
+                    status={report.status}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="box">
+                {students?.map((student, index) => (
+                  <Container
+                    name={student.name}
+                    status={student.status}
+                    onStatusChange={handleStatusChange}
+                    key={index}
+                  />
+                ))}
+                <button className="submit" onClick={handleSubmit}>
+                  Mark Attendance
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>

@@ -45,3 +45,22 @@ exports.postStudentsAttendance = async (req, res, next) => {
     res.status(500).json({ status: 'fail', message: err.message });
   }
 };
+
+exports.getAllStudentsReport = async (req, res, next) => {
+  try {
+    const students = await Student.findAll();
+    const days = await Attendance.findAll();
+
+    if (!students.length || !days.length)
+      return res.status(404).json({
+        status: 'fail',
+        totalDays: days.length,
+        message: 'NO record found. Please try again!',
+      });
+    res
+      .status(200)
+      .json({ status: 'success', totalDays: days.length, data: students });
+  } catch (err) {
+    res.status(500).json({ status: 'fail', message: err.message });
+  }
+};
